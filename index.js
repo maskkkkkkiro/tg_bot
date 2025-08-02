@@ -16,7 +16,13 @@ const CHANNEL_USERNAME = 'zenithdlc'; // Без @ для проверки под
 
 // Создание бота
 const bot = new TelegramBot(BOT_TOKEN, {
-    polling: true
+    polling: {
+        interval: 1000,
+        autoStart: true,
+        params: {
+            timeout: 10
+        }
+    }
 });
 
 // Отслеживание активных запросов ключей (защита от спама)
@@ -2088,6 +2094,14 @@ bot.onText(/\/broadcast (.+)/, (msg, match) => {
 bot.on('polling_error', (error) => {
     console.error('🔴 Polling error:', error.message);
     
+    // Специальная обработка конфликта с другими экземплярами
+    if (error.message.includes('409') && error.message.includes('Conflict')) {
+        console.error('🚨 КОНФЛИКТ: Обнаружен другой экземпляр бота!');
+        console.error('⚠️  Остановите все другие экземпляры и перезапустите бота');
+        console.error('💡 Выполните: pm2 stop all && pm2 delete all');
+        process.exit(1);
+    }
+    
     // Если это ошибка сети, пробуем переподключиться
     if (error.message.includes('ENOTFOUND') || 
         error.message.includes('ECONNRESET') ||
@@ -2160,7 +2174,8 @@ console.log('📢 Канал для подписки:', CHANNEL_URL);
 console.log('👑 ID администратора:', ADMIN_ID);
 console.log('🐛 Чат поддержки:', SUPPORT_CHAT_ID);
 console.log('📺 Медиа партнерский чат:', MEDIA_PARTNER_CHAT_ID);
-console.log('✅ Версия: FIXED_2025-08-03_v7 - Error Handling and Stability Fix');
+console.log('✅ Версия: FIXED_2025-08-03_v8 - Conflict Prevention Fix');
 console.log('� IPv4 конфигурация: Включена');
 console.log('⚡ Защита от спама: Активна');
 console.log('🛡️ Улучшенная обработка ошибок: Включена');
+console.log('🚨 Защита от конфликтов: Включена');
