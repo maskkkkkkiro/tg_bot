@@ -37,13 +37,15 @@ npm install
 ```bash
 # Способ 1: С ecosystem файлом (рекомендуется)
 pm2 start ecosystem.config.js
-pm2 save
 
-# Способ 2: Обычная команда
-pm2 start index.js --name zenith-bot --mode fork -i 1
-pm2 save
+# Способ 2: Обычная команда с exec_mode
+pm2 start index.js --name zenith-bot --exec-mode fork -i 1
 
-# ВАЖНО: НЕ используйте cluster режим для Telegram ботов!
+# Способ 3: Простой запуск
+pm2 start index.js --name zenith-bot
+
+# После запуска обязательно:
+pm2 save
 ```
 
 ### 6. Проверить статус:

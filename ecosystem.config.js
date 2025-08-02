@@ -15,8 +15,8 @@ module.exports = {
     log_file: './logs/combined.log',
     time: true,
     merge_logs: true,
-    max_restarts: 5,
-    min_uptime: '10s',
-    restart_delay: 5000
+    max_restarts: 3,  // Уменьшено для предотвращения бесконечных перезапусков при конфликтах
+    min_uptime: '30s', // Увеличено время работы перед перезапуском
+    restart_delay: 10000 // Увеличена задержка между перезапусками
   }]
 };
