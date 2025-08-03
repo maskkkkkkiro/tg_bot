@@ -17,7 +17,40 @@ yarn-error.log*
 .env.production.local
 
 # Logs
-logs
+logs/
+*.log
+
+# PM2
+.pm2/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+test_*.js
+*_test.js
+
+# Build files
+dist/
+build/
 *.log
 
 # Runtime data
