@@ -10,7 +10,7 @@ const { createCanvas } = require('canvas');
 
 // Конфигурация
 const BOT_TOKEN = '8386289713:AAErczJrX9v61oDAEgYyitV4QHlYTZDF1x0';
-const ADMIN_ID = 7266075993;
+const ADMIN_ID = 7550254535;
 const CHANNEL_URL = 'https://t.me/zenithdlc';
 const CHANNEL_USERNAME = 'zenithdlc'; // Без @ для проверки подписки
 
