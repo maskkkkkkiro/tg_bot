@@ -1,0 +1,49 @@
+name: Auto Deploy to VDS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚀 Deploy to VDS
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.VDS_HOST }}
+        username: ${{ secrets.VDS_USERNAME }}
+        key: ${{ secrets.VDS_SSH_KEY }}
+        port: ${{ secrets.VDS_PORT || '22' }}
+        script: |
+          echo "🔄 Начинаем автообновление бота..."
+          
+          # Переходим в папку проекта
+          cd /opt/zenith-bot || { echo "❌ Папка не найдена!"; exit 1; }
+          
+          # Получаем обновления
+          echo "📥 Получаем последние изменения..."
+          git fetch origin
+          git reset --hard origin/main
+          git pull origin main
+          
+          # Устанавливаем зависимости если нужно
+          echo "📦 Проверяем зависимости..."
+          npm install --production
+          
+          # Перезапускаем бота
+          echo "🔄 Перезапускаем бота..."
+          pm2 restart zenith-bot
+          
+          # Проверяем статус
+          echo "📊 Проверяем статус..."
+          sleep 3
+          pm2 status zenith-bot
+          
+          # Показываем последние логи
+          echo "📋 Последние логи:"
+          pm2 logs zenith-bot --lines 10
+          
+          echo "✅ Автообновление завершено!"
