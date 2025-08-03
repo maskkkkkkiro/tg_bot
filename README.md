@@ -172,3 +172,5 @@ pm2 start ecosystem.config.js
 ---
 **Версия**: FIXED_2025-08-03_v8.3  
 **Статус**: ✅ Чистая Production
+#   T e s t   a u t o - d e p l o y   a f t e r   c l e a n u p  
+ 
