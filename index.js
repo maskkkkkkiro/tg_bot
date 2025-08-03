@@ -2121,9 +2121,42 @@ bot.onText(/\/whoami/, (msg) => {
         `👤 Ваш ID: \`${userId}\`\n` +
         `👑 Админ ID: \`${ADMIN_ID}\`\n` +
         `✅ Статус: ${userId === ADMIN_ID ? 'АДМИН' : 'Пользователь'}\n\n` +
-        `🤖 Версия бота: v8.3-Clean-Production`,
+        `🤖 Версия бота: v8.3-Clean-Production\n` +
+        `📍 VDS путь: /opt/zenith-bot\n` +
+        `🕐 Время: ${new Date().toLocaleString('ru-RU', {timeZone: 'Europe/Moscow'})}`,
         { parse_mode: 'Markdown' }
     );
+});
+
+// Команда проверки статуса бота (только для админа)
+bot.onText(/\/status/, (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+    
+    if (userId !== ADMIN_ID) {
+        bot.sendMessage(chatId, '❌ Команда доступна только администратору!');
+        return;
+    }
+    
+    // Получаем статистику
+    db.get("SELECT COUNT(*) as total_users FROM users", (err, userCount) => {
+        db.get("SELECT COUNT(*) as total_keys FROM keys", (err2, totalKeys) => {
+            db.get("SELECT COUNT(*) as used_keys FROM keys WHERE is_used = 1", (err3, usedKeys) => {
+                const availableKeys = totalKeys ? totalKeys.total_keys - (usedKeys ? usedKeys.used_keys : 0) : 0;
+                
+                bot.sendMessage(chatId, 
+                    `📊 Статус бота:\n\n` +
+                    `👥 Пользователей: ${userCount ? userCount.total_users : 0}\n` +
+                    `🔑 Всего ключей: ${totalKeys ? totalKeys.total_keys : 0}\n` +
+                    `✅ Выдано: ${usedKeys ? usedKeys.used_keys : 0}\n` +
+                    `📦 Доступно: ${availableKeys}\n\n` +
+                    `🤖 Версия: v8.3\n` +
+                    `📍 Путь: /opt/zenith-bot\n` +
+                    `🕐 ${new Date().toLocaleString('ru-RU', {timeZone: 'Europe/Moscow'})}`
+                );
+            });
+        });
+    });
 });
 
 // Команда перезапуска бота на VDS
