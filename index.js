@@ -925,11 +925,10 @@ bot.on('callback_query', async (query) => {
 
     // Глобальная проверка на админа для админских колбеков
     // Разрешаем обычным пользователям partner_ (кроме partner_free_ и partner_paid_)
-    console.log(`🔍 CALLBACK: User ${userId} (ADMIN: ${ADMIN_ID}) trying to use: ${data}`);
+    console.log(`🔍 CALLBACK: User ${userId} (ADMIN: ${ADMIN_ID}) trying to use: ${data} in chat: ${chatId}`);
     
     if (
         data.startsWith('admin_') ||
-        data.startsWith('app_') ||
         data.startsWith('reply_') ||
         (data.startsWith('partner_free_') || data.startsWith('partner_paid_'))
     ) {
@@ -939,6 +938,17 @@ bot.on('callback_query', async (query) => {
             return;
         } else {
             console.log(`✅ ACCESS GRANTED: Admin ${userId} using ${data}`);
+        }
+    }
+    
+    // Особая проверка для app_ колбеков - разрешаем только админу и только в медиа чате
+    if (data.startsWith('app_')) {
+        if (userId !== ADMIN_ID || chatId !== MEDIA_PARTNER_CHAT_ID) {
+            console.log(`❌ APP ACCESS DENIED: User ${userId} (need admin: ${ADMIN_ID}) in chat ${chatId} (need: ${MEDIA_PARTNER_CHAT_ID})`);
+            safeAnswerCallbackQuery(query.id, '❌ Доступ запрещен! Только админ в медиа чате.');
+            return;
+        } else {
+            console.log(`✅ APP ACCESS GRANTED: Admin ${userId} in media chat using ${data}`);
         }
     }
     
@@ -1424,16 +1434,13 @@ bot.on('callback_query', async (query) => {
         showMainMenu(chatId);
     } else if (data.startsWith('app_approve_') || data.startsWith('app_reject_')) {
         // Обработка заявки администратором
-        if (userId !== ADMIN_ID && chatId !== MEDIA_PARTNER_CHAT_ID) {
-            safeAnswerCallbackQuery(query.id, '❌ Недостаточно прав!');
-            return;
-        }
-        
         const applicationId = parseInt(data.split('_')[2]);
         const action = data.startsWith('app_approve_') ? 'approve' : 'reject';
+        console.log(`📝 АДМИН: Обрабатываем заявку ID: ${applicationId}, действие: ${action}`);
         
         if (action === 'approve') {
             // Одобрение - выбор типа партнерства
+            console.log(`✅ АДМИН: Одобряем заявку ${applicationId}`);
             adminPartnerState.set(userId, { 
                 step: 'choose_partnership_type', 
                 applicationId: applicationId 
@@ -1450,6 +1457,8 @@ bot.on('callback_query', async (query) => {
                 }
             };
             
+            safeAnswerCallbackQuery(query.id, '✅ Заявка одобрена! Выберите тип.');
+            
             bot.editMessageText(
                 `✅ Заявка принята! Выберите тип партнерства:\n\n` +
                 `🆓 **Бесплатное** - только ключ и доступ к бета-чату\n` +
@@ -1463,14 +1472,19 @@ bot.on('callback_query', async (query) => {
             );
         } else {
             // Отклонение заявки
+            console.log(`❌ АДМИН: Отклоняем заявку ${applicationId}`);
+            safeAnswerCallbackQuery(query.id, '❌ Заявка отклонена.');
+            
             db.run(
                 "UPDATE media_partner_applications SET status = 'rejected', processed_at = CURRENT_TIMESTAMP WHERE id = ?",
                 [applicationId],
                 (err) => {
                     if (err) {
-                        safeAnswerCallbackQuery(query.id, '❌ Ошибка обновления заявки');
+                        console.error('❌ Ошибка отклонения заявки:', err);
                         return;
                     }
+                    
+                    console.log(`✅ АДМИН: Заявка ${applicationId} отклонена в БД`);
                     
                     // Получаем данные заявки для уведомления пользователя
                     db.get("SELECT * FROM media_partner_applications WHERE id = ?", [applicationId], (err, app) => {
