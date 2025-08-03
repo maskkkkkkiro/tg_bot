@@ -1781,8 +1781,10 @@ bot.onText(/\/admin/, (msg) => {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
     
+    console.log(`🔍 ADMIN CHECK: User ${userId} trying /admin, current ADMIN_ID: ${ADMIN_ID}`);
+    
     if (userId !== ADMIN_ID) {
-        bot.sendMessage(chatId, '❌ У вас нет прав администратора!');
+        bot.sendMessage(chatId, `❌ У вас нет прав администратора!\n\n🔍 Ваш ID: ${userId}\n🔑 Нужный ID: ${ADMIN_ID}`);
         return;
     }
     
@@ -2107,6 +2109,21 @@ bot.onText(/\/broadcast (.+)/, (msg, match) => {
             `📝 Всего пользователей: ${result.total}`
         );
     });
+});
+
+// Команда для проверки ADMIN_ID (для отладки)
+bot.onText(/\/whoami/, (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+    
+    bot.sendMessage(chatId, 
+        `🆔 Информация:\n\n` +
+        `👤 Ваш ID: \`${userId}\`\n` +
+        `👑 Админ ID: \`${ADMIN_ID}\`\n` +
+        `✅ Статус: ${userId === ADMIN_ID ? 'АДМИН' : 'Пользователь'}\n\n` +
+        `🤖 Версия бота: v8.3-Clean-Production`,
+        { parse_mode: 'Markdown' }
+    );
 });
 
 // Команда перезапуска бота на VDS
