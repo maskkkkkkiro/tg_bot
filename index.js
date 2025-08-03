@@ -2095,6 +2095,38 @@ bot.onText(/\/broadcast (.+)/, (msg, match) => {
     });
 });
 
+// Команда перезапуска бота на VDS
+bot.onText(/\/restart/, async (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+    
+    if (userId !== ADMIN_ID) {
+        bot.sendMessage(chatId, '❌ У вас нет прав администратора!');
+        return;
+    }
+    
+    try {
+        const restartMsg = await bot.sendMessage(chatId, '🔄 Подключаемся к VDS для перезапуска бота...');
+        
+        // Импортируем функцию перезапуска
+        const { restartBot } = require('./vds_restart.js');
+        
+        const result = await restartBot();
+        
+        await bot.editMessageText(
+            `✅ ${result}\n\n⏰ Бот будет перезапущен через несколько секунд`,
+            {
+                chat_id: chatId,
+                message_id: restartMsg.message_id
+            }
+        );
+        
+    } catch (error) {
+        console.error('❌ Ошибка перезапуска:', error);
+        bot.sendMessage(chatId, `❌ Ошибка перезапуска: ${error.message || error}`);
+    }
+});
+
 // Обработка ошибок
 bot.on('polling_error', (error) => {
     console.error('🔴 Polling error:', error.message);

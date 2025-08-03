@@ -40,6 +40,26 @@ module.exports = {
       max_restarts: 5,
       min_uptime: '10s',
       restart_delay: 5000
+    },
+    {
+      name: 'vds-restart-service',
+      script: 'vds_restart.js',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '100M',
+      env: {
+        NODE_ENV: 'production'
+      },
+      error_file: './logs/vds_restart_err.log',
+      out_file: './logs/vds_restart_out.log',
+      log_file: './logs/vds_restart_combined.log',
+      time: true,
+      merge_logs: true,
+      max_restarts: 3,
+      min_uptime: '10s',
+      restart_delay: 5000
     }
   ]
 };
