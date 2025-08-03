@@ -925,6 +925,8 @@ bot.on('callback_query', async (query) => {
 
     // Глобальная проверка на админа для админских колбеков
     // Разрешаем обычным пользователям partner_ (кроме partner_free_ и partner_paid_)
+    console.log(`🔍 CALLBACK: User ${userId} (ADMIN: ${ADMIN_ID}) trying to use: ${data}`);
+    
     if (
         data.startsWith('admin_') ||
         data.startsWith('app_') ||
@@ -932,8 +934,11 @@ bot.on('callback_query', async (query) => {
         (data.startsWith('partner_free_') || data.startsWith('partner_paid_'))
     ) {
         if (userId !== ADMIN_ID) {
+            console.log(`❌ ACCESS DENIED: User ${userId} is not admin (${ADMIN_ID})`);
             safeAnswerCallbackQuery(query.id, '❌ Доступ запрещен!');
             return;
+        } else {
+            console.log(`✅ ACCESS GRANTED: Admin ${userId} using ${data}`);
         }
     }
     
@@ -2182,7 +2187,7 @@ console.log('📢 Канал для подписки:', CHANNEL_URL);
 console.log('👑 ID администратора:', ADMIN_ID);
 console.log('🐛 Чат поддержки:', SUPPORT_CHAT_ID);
 console.log('📺 Медиа партнерский чат:', MEDIA_PARTNER_CHAT_ID);
-console.log('✅ Версия: FIXED_2025-08-03_v8.1 - Anti-Restart Loop Fix');
+console.log('✅ Версия: FIXED_2025-08-03_v8.2 - Admin Debug Fix');
 console.log('� IPv4 конфигурация: Включена');
 console.log('⚡ Защита от спама: Активна');
 console.log('🛡️ Улучшенная обработка ошибок: Включена');
