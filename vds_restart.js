@@ -19,10 +19,10 @@ function restartBot() {
             
             // Команды для перезапуска бота
             const commands = [
-                'cd /root/tg_bot',
+                'cd /opt/zenith-bot',
                 'git pull origin main',
-                'npm install',
-                'pm2 restart zenith-bot'
+                'npm install --production',
+                'pm2 restart zenith-bot || pm2 start ecosystem.config.js'
             ];
             
             const executeCommand = (index) => {

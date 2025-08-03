@@ -11,12 +11,12 @@ jobs:
     
     steps:
     - name: 🚀 Deploy to VDS
-      uses: appleboy/ssh-action@v0.1.7
+      uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.VDS_HOST }}
-        username: ${{ secrets.VDS_USERNAME }}
-        key: ${{ secrets.VDS_SSH_KEY }}
-        port: ${{ secrets.VDS_PORT || '22' }}
+        host: 92.51.22.201
+        username: root
+        password: "o*-?k*4UNaAU8p"
+        port: 22
         script: |
           echo "🔄 Начинаем автообновление бота..."
           
@@ -35,15 +35,15 @@ jobs:
           
           # Перезапускаем бота
           echo "🔄 Перезапускаем бота..."
-          pm2 restart zenith-bot
+          pm2 restart zenith-bot || pm2 start ecosystem.config.js
           
           # Проверяем статус
           echo "📊 Проверяем статус..."
           sleep 3
-          pm2 status zenith-bot
+          pm2 status
           
           # Показываем последние логи
           echo "📋 Последние логи:"
-          pm2 logs zenith-bot --lines 10
+          pm2 logs zenith-bot --lines 5 || echo "Логи недоступны"
           
           echo "✅ Автообновление завершено!"
